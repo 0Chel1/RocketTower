@@ -1,0 +1,7 @@
+{
+  "name": "RocketTower",
+  "version": "0.0.1",
+  "description": "This mod adding rocket tower.",
+  "main": "index.js",
+  "screeps_mod": true
+}
