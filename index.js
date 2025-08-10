@@ -1,9 +1,18 @@
 module.exports = function (config) {
-    const assetsUrl = 'https://raw.githubusercontent.com/0Chel1/screepsmod-testMod/refs/heads/main/';
+    const assetsUrl = 'https://raw.githubusercontent.com/0Chel1/RocketTower/refs/heads/main/';
 
     if (config.backend) {
         config.backend.customObjectTypes.rockettower = {
-            sidepanel: '<div><label>Description:</label><span>This is Rocket Tower. It Shoots rockets.</span></div>'
+            sidepanel: '<div><label class="body-header">Store:</label>' +
+                '<div ng-if="!Room.calcResources(Room.selectedObject)"> Empty </div>' +
+                '<div ng-if="Room.calcResources(Room.selectedObject)">' +
+                '<table ng-repeat="(resourceType, amount) in Room.selectedObject.store" ng-if="amount > 0">' +
+                '<td>{{amount | number}}&nbsp;&times;&nbsp;</td>' +
+                '<td><img class="resource-type" ng-src="${{assetsUrl}}RocketTower.png" uib-tooltip="{{Room.resourceTypeNames[resourceType]}}"></td>' +
+                '</table>' +
+                '</div>' +
+                '</div>' +
+                '</div>'
         };
 
         config.backend.renderer.resources['tower_texture'] = `${assetsUrl}RocketTower.png`;
@@ -32,10 +41,34 @@ module.exports = function (config) {
                         height: 150,
                     }
                 },
+                /*{
+                    type: 'sprite',
+                    layer: 'lighting',
+                    once: true,
+                    actions: [
+                        {
+                            action: 'Repeat',
+                            params: [
+                                {
+                                    action: 'RotateBy',
+                                    params: [
+                                        15,
+                                        10,
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                    payload: {
+                        texture: 'tower_texture',
+                        width: 150,
+                        height: 150,
+                    }
+                },*/
                 {
                     type: 'runAction',
                     once: true,
-                    when: { $and: [{ $state: 'user' }] },
+                    when: { $state: 'user' },
                     payload: {
                         id: 'rotateTower',
                     },
@@ -49,6 +82,29 @@ module.exports = function (config) {
                 }
             ]
         };
+    }
+
+    if (config.engine) {
+        config.engine.registerCustomObjectPrototype('rockettower', 'RocketTower', {
+            prototypeExtender(prototype, scope, { utils }) {
+                const data = id => {
+                    if (!scope.runtimeData.roomObjects[id]) {
+                        throw new Error("Could not find an object with ID " + id);
+                    }
+                    return scope.runtimeData.roomObjects[id];
+                };
+
+                utils.defineGameObjectProperties(prototype, data, {
+                    owner: o => o.user ? { username: scope.runtimeData.users[o.user].username } : undefined,
+                    my: o => o.user ? o.user == scope.runtimeData.user._id : undefined,
+                    store: o => new scope.globals.Store(o)
+                });
+
+                prototype.toString = function () { return `[rockettower #${this.id}]` };
+            },
+            findConstant: config.common.constants.FIND_ROCKETTOWERS,
+            lookConstant: config.common.constants.LOOK_ROCKETTOWERS
+        });
     }
 
     /*if (config.cronjobs) {
