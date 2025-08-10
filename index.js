@@ -3,16 +3,7 @@ module.exports = function (config) {
 
     if (config.backend) {
         config.backend.customObjectTypes.rockettower = {
-            sidepanel: '<div><label class="body-header">Store:</label>' +
-                '<div ng-if="!Room.calcResources(Room.selectedObject)"> Empty </div>' +
-                '<div ng-if="Room.calcResources(Room.selectedObject)">' +
-                '<table ng-repeat="(resourceType, amount) in Room.selectedObject.store" ng-if="amount > 0">' +
-                '<td>{{amount | number}}&nbsp;&times;&nbsp;</td>' +
-                '<td><img class="resource-type" ng-src="${{assetsUrl}}RocketTower.png" uib-tooltip="{{Room.resourceTypeNames[resourceType]}}"></td>' +
-                '</table>' +
-                '</div>' +
-                '</div>' +
-                '</div>'
+            sidepanel: '<div><label>Owner: </label>{{ object.user }}</div>'
         };
 
         config.backend.renderer.resources['tower_texture'] = `${assetsUrl}RocketTower.png`;
@@ -28,7 +19,7 @@ module.exports = function (config) {
                                 {
                                     action: 'RotateBy',
                                     params: [
-                                        15,
+                                        Math.PI,
                                         10,
                                     ],
                                 },
