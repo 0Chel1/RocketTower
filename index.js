@@ -2,8 +2,14 @@ module.exports = function (config) {
     const assetsUrl = 'https://raw.githubusercontent.com/0Chel1/RocketTower/refs/heads/main/';
 
     if (config.backend) {
+        if (config.common) {
+            config.common.constants.FIND_ROCKETTOWERS = 10051;
+            config.common.constants.LOOK_ROCKETTOWERS = "rockettower";
+            config.common.constants.CONSTRUCTION_COST.rockettower = 300;
+        }
+
         config.backend.customObjectTypes.rockettower = {
-            sidepanel: '<div><label>Owner: </label>{{ object.user }}</div>'
+            //sidepanel: '<div><label>Owner: </label>{{ object.user }}</div>'
         };
 
         config.backend.renderer.resources['tower_texture'] = `${assetsUrl}RocketTower.png`;
@@ -96,6 +102,15 @@ module.exports = function (config) {
             findConstant: config.common.constants.FIND_ROCKETTOWERS,
             lookConstant: config.common.constants.LOOK_ROCKETTOWERS
         });
+
+        /*prototype.remove = register.wrapFn(function () {
+
+            if (!this.my && !(this.room && this.room.controller && this.room.controller.my)) {
+                return C.ERR_NOT_OWNER;
+            }
+            intents.pushByName('room', 'removeTower', { roomName: data(this.id).room, id: this.id });
+            return C.OK;
+        });*/
     }
 
     /*if (config.cronjobs) {
