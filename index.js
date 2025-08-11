@@ -1,12 +1,13 @@
 module.exports = function (config) {
     const assetsUrl = 'https://raw.githubusercontent.com/0Chel1/RocketTower/refs/heads/main/';
 
+    if (config.common) {
+        config.common.constants.FIND_ROCKETTOWERS = 10051;
+        config.common.constants.LOOK_ROCKETTOWERS = "rockettower";
+        config.common.constants.CONSTRUCTION_COST.rockettower = 300;
+    }
+
     if (config.backend) {
-        if (config.common) {
-            config.common.constants.FIND_ROCKETTOWERS = 10051;
-            config.common.constants.LOOK_ROCKETTOWERS = "rockettower";
-            config.common.constants.CONSTRUCTION_COST.rockettower = 300;
-        }
 
         config.backend.customObjectTypes.rockettower = {
             //sidepanel: '<div><label>Owner: </label>{{ object.user }}</div>'
@@ -102,6 +103,27 @@ module.exports = function (config) {
             findConstant: config.common.constants.FIND_ROCKETTOWERS,
             lookConstant: config.common.constants.LOOK_ROCKETTOWERS
         });
+
+        let owner = 0;
+
+        config.engine.on('preProcessObjectIntents', function (object, userId, objectIntents, roomObjects, roomTerrain, gameTime, roomInfo, bulk, bulkUsers) {
+            if (object.type == 'creep') {
+                const buildIntent = objectIntents['build'];
+                if (buildIntent) {
+                    const target = roomObjects[buildIntent.id];
+                    if (target)
+                        owner = target.user;
+                }
+            }
+        });
+
+        config.engine.on('postProcessObject', function (object, roomObjects, roomTerrain, gameTime, roomInfo, bulk, bulkUsers, eventLog, mapView) {
+            if (object.type == 'rockettower') {
+                if (!object.user) {
+                    bulk.update(object, { user: owner });
+                }
+            }
+        }
 
         /*prototype.remove = register.wrapFn(function () {
 
